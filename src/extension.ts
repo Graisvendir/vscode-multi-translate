@@ -51,7 +51,13 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        const translations = await translateText(selectedText, ['en', 'es', 'fr']); // Пример языков
+        const settings = vscode.workspace.getConfiguration('multi-translate');
+
+        const languages = settings.get<string>('languages-to-translate-into')
+            ?.split(',')
+            .map(lang => lang.trim()) ?? [];
+
+        const translations = await translateText(selectedText, languages); // Пример языков
 
         // Форматирование перевода для вывода
         const formattedTranslations = translations

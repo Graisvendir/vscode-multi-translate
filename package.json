@@ -17,7 +17,16 @@
                 "command": "multi-translate.multi-translate-selected-text",
                 "title": "Translate selected text to multiple languages"
             }
-        ]
+        ],
+        "configuration": {
+            "properties": {
+                "multi-translate.languages-to-translate-into": {
+                    "type": "string",
+                    "default": "de, en, es, fr, it, kk, pl, pt, tr, uk",
+                    "description": "Список кодов языков, на которые надо перевести текст. Без кавычек, через запятую."
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
