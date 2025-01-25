@@ -6,7 +6,11 @@ export interface TranslateResult {
 	translatedText: string,
 }
 
-export class GoogleTranslateRequest {
+/**
+ * Запрос перевода текста на язык через API версии 2.
+ * Платное и требует ключ API.
+ */
+export class GoogleTranslateV2 {
 
     public async multiTranslate(text: string, langs: string[]) {
         const promiseList = langs.map(lang => {

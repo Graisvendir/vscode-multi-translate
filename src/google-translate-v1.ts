@@ -6,240 +6,209 @@ interface Options {
     to: string;
 }
 
-export async function translate(text: string, options: Options) {
-    text = String(text);
+interface Sentence {
+    trans: string;
+}
 
-    // Check if a lanugage is in supported; if not, throw an error object.
-    let error;
-    [ options.from, options.to ].forEach((lang) => {
-        if (lang && !isSupported(lang)) {
-            error = new Error();
-            error.message = `The language '${lang}' is not supported.`;
-        }
-    });
-    if (error) throw error;
+interface ResponseJsonBody {
+    sentences: Sentence[],
+}
 
-    // If options object doesn"t have "from" language, set it to "auto".
-    if (!Object.prototype.hasOwnProperty.call(options, "from")) options.from = "auto";
-    // If options object doesn"t have "to" language, set it to "en".
-    if (!Object.prototype.hasOwnProperty.call(options, "to")) options.to = "en";
+/**
+ * Запрос перевода текста на язык через API версии 1.
+ * Бесплатное. Не требует ключа API
+ */
+export class GoogleTranslateRequestV1 {
 
-    // Get ISO 639-1 codes for the languages.
-    const from = getISOCode(options.from);
-    const to = getISOCode(options.to);
+    private languageMap = {
+        "auto": "Automatic",
+        "af": "Afrikaans",
+        "sq": "Albanian",
+        "am": "Amharic",
+        "ar": "Arabic",
+        "hy": "Armenian",
+        "az": "Azerbaijani",
+        "eu": "Basque",
+        "be": "Belarusian",
+        "bn": "Bengali",
+        "bs": "Bosnian",
+        "bg": "Bulgarian",
+        "ca": "Catalan",
+        "ceb": "Cebuano",
+        "ny": "Chichewa",
+        "zh-cn": "Chinese Simplified",
+        "zh-tw": "Chinese Traditional",
+        "co": "Corsican",
+        "hr": "Croatian",
+        "cs": "Czech",
+        "da": "Danish",
+        "nl": "Dutch",
+        "en": "English",
+        "eo": "Esperanto",
+        "et": "Estonian",
+        "tl": "Filipino",
+        "fi": "Finnish",
+        "fr": "French",
+        "fy": "Frisian",
+        "gl": "Galician",
+        "ka": "Georgian",
+        "de": "German",
+        "el": "Greek",
+        "gu": "Gujarati",
+        "ht": "Haitian Creole",
+        "ha": "Hausa",
+        "haw": "Hawaiian",
+        "iw": "Hebrew",
+        "hi": "Hindi",
+        "hmn": "Hmong",
+        "hu": "Hungarian",
+        "is": "Icelandic",
+        "ig": "Igbo",
+        "id": "Indonesian",
+        "ga": "Irish",
+        "it": "Italian",
+        "ja": "Japanese",
+        "jw": "Javanese",
+        "kn": "Kannada",
+        "kk": "Kazakh",
+        "km": "Khmer",
+        "ko": "Korean",
+        "ku": "Kurdish (Kurmanji)",
+        "ky": "Kyrgyz",
+        "lo": "Lao",
+        "la": "Latin",
+        "lv": "Latvian",
+        "lt": "Lithuanian",
+        "lb": "Luxembourgish",
+        "mk": "Macedonian",
+        "mg": "Malagasy",
+        "ms": "Malay",
+        "ml": "Malayalam",
+        "mt": "Maltese",
+        "mi": "Maori",
+        "mr": "Marathi",
+        "mn": "Mongolian",
+        "my": "Myanmar (Burmese)",
+        "ne": "Nepali",
+        "no": "Norwegian",
+        "ps": "Pashto",
+        "fa": "Persian",
+        "pl": "Polish",
+        "pt": "Portuguese",
+        "pa": "Punjabi",
+        "ro": "Romanian",
+        "ru": "Russian",
+        "sm": "Samoan",
+        "gd": "Scots Gaelic",
+        "sr": "Serbian",
+        "st": "Sesotho",
+        "sn": "Shona",
+        "sd": "Sindhi",
+        "si": "Sinhala",
+        "sk": "Slovak",
+        "sl": "Slovenian",
+        "so": "Somali",
+        "es": "Spanish",
+        "su": "Sundanese",
+        "sw": "Swahili",
+        "sv": "Swedish",
+        "tg": "Tajik",
+        "ta": "Tamil",
+        "te": "Telugu",
+        "th": "Thai",
+        "tr": "Turkish",
+        "uk": "Ukrainian",
+        "ur": "Urdu",
+        "uz": "Uzbek",
+        "vi": "Vietnamese",
+        "cy": "Welsh",
+        "xh": "Xhosa",
+        "yi": "Yiddish",
+        "yo": "Yoruba",
+        "zu": "Zulu"
+    };
 
-    // Generate Google Translate token for the text to be translated.
-    let token = getToken(text);
+    public async translate(text: string, options: Options): Promise<string> {
+        [ options.from, options.to ].forEach((lang) => {
+            if (!this.isLanguageSupported(lang)) {
+                throw new Error(`Язык '${lang}' не поддерживается.`);
+            }
+        });
 
-    // URL & query string required by Google Translate.
-    // $url = 'https://translate.google.com/translate_a/single?client=at&dt=t&dt=ld&dt=qca&dt=rm&dt=bd&dj=1&hl=uk-RU&ie=UTF-8&oe=UTF-8&inputm=2&otf=2&iid=1dd3b944-fa62-4b55-b330-74909a99969e';
-    let path = '/translate_a/single'
-        + '?client=at'
-        + '&dt=t'
-        + '&dt=ld'
-        + '&dt=qca'
-        + '&dt=rm'
-        + '&dt=bd'
-        + '&dj=1'
-        + '&hl=uk-RU'
-        + '&ie=UTF-8'
-        + '&oe=UTF-8'
-        + '&inputm=2'
-        + '&otf=2'
-        + '&sl=' + from
-        + '&tl=' + to
-        + '&hl=' + to
-        // + '&q=' + encodeURIComponent(text)
-        // + '&iid=1dd3b944-fa62-4b55-b330-74909a99969e'
-        ;
+        const from = this.getISOCode(options.from);
+        const to = this.getISOCode(options.to);
 
-    // let data = {
-    //     client: "gtx",
-    //     sl: options.from,
-    //     tl: options.to,
-    //     hl: options.to,
-    //     dt: [ "at", "bd", "ex", "ld", "md", "qca", "rw", "rm", "ss", "t" ],
-    //     ie: "UTF-8",
-    //     oe: "UTF-8",
-    //     otf: 1,
-    //     ssel: 0,
-    //     tsel: 0,
-    //     kc: 7,
-    //     q: text,
-    //     tk: token,
-    // };
+        const requestPath = '/translate_a/single'
+            + '?client=at'
+            + '&dt=t'
+            + '&dt=ld'
+            + '&dt=qca'
+            + '&dt=rm'
+            + '&dt=bd'
+            + '&dj=1'
+            + '&hl=uk-RU'
+            + '&ie=UTF-8'
+            + '&oe=UTF-8'
+            + '&inputm=2'
+            + '&otf=2'
+            + '&sl=' + from
+            + '&tl=' + to
+            + '&hl=' + to
+            ;
 
-    // Append query string to the request URL.
-    // let url = `${baseUrl}?${encodeURIComponent(data)}`;
-
-    const responseBody = await (new Fetch()).request(
-        {
-            hostname: 'translate.google.com',
-            port: 443,
-            path,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-                // 'Content-Length': 0,
+        const responseBody = await (new Fetch()).request(
+            {
+                hostname: 'translate.google.com',
+                port: 443,
+                path: requestPath,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                },
             },
-        },
-        new URLSearchParams({ q: text }).toString(),
-    );
+            new URLSearchParams({ q: text }).toString(),
+        );
 
-    const jsonBody = JSON.parse(responseBody);
+        const jsonBody = <ResponseJsonBody>JSON.parse(responseBody);
 
-    let finishText = '';
+        return jsonBody.sentences
+            .map(sentence => sentence.trans)
+            .join('');
+    }
 
-    // @ts-ignore
-    jsonBody.sentences.forEach(item => {
-        finishText += item.trans;
-    });
+    /**
+     * Returns the ISO 639-1 code of the desiredLang – if it is supported by
+     * Google Translate
+     * @param {string} language The name or the code of the desired language
+     * @returns {string|boolean} The ISO 639-1 code of the language or null if the
+     * language is not supported
+     */
+    protected getISOCode(language: string): string | null {
+        language = language.toLowerCase();
 
-    console.log('!!!!!!! json', finishText, responseBody, jsonBody); // TODO: console.log remove
+        if (language in this.languageMap) {
+            return language;
+        }
 
-    return finishText;
+        let keys = Object.keys(this.languageMap).filter(key => {
+            // @ts-ignore
+            return languages[key].toLowerCase() === language;
+        });
+
+        return keys[0] || null;
+    }
+
+    /**
+     * Returns true if the desiredLang is supported by Google Translate and false otherwise
+     * @param {String} languageCode The ISO 639-1 code or the name of the desired language.
+     * @returns {boolean} If the language is supported or not.
+     */
+    protected isLanguageSupported(languageCode: string): boolean {
+        return Boolean(this.getISOCode(languageCode));
+    }
 }
 
 
-const languages = {
-    "auto": "Automatic",
-    "af": "Afrikaans",
-    "sq": "Albanian",
-    "am": "Amharic",
-    "ar": "Arabic",
-    "hy": "Armenian",
-    "az": "Azerbaijani",
-    "eu": "Basque",
-    "be": "Belarusian",
-    "bn": "Bengali",
-    "bs": "Bosnian",
-    "bg": "Bulgarian",
-    "ca": "Catalan",
-    "ceb": "Cebuano",
-    "ny": "Chichewa",
-    "zh-cn": "Chinese Simplified",
-    "zh-tw": "Chinese Traditional",
-    "co": "Corsican",
-    "hr": "Croatian",
-    "cs": "Czech",
-    "da": "Danish",
-    "nl": "Dutch",
-    "en": "English",
-    "eo": "Esperanto",
-    "et": "Estonian",
-    "tl": "Filipino",
-    "fi": "Finnish",
-    "fr": "French",
-    "fy": "Frisian",
-    "gl": "Galician",
-    "ka": "Georgian",
-    "de": "German",
-    "el": "Greek",
-    "gu": "Gujarati",
-    "ht": "Haitian Creole",
-    "ha": "Hausa",
-    "haw": "Hawaiian",
-    "iw": "Hebrew",
-    "hi": "Hindi",
-    "hmn": "Hmong",
-    "hu": "Hungarian",
-    "is": "Icelandic",
-    "ig": "Igbo",
-    "id": "Indonesian",
-    "ga": "Irish",
-    "it": "Italian",
-    "ja": "Japanese",
-    "jw": "Javanese",
-    "kn": "Kannada",
-    "kk": "Kazakh",
-    "km": "Khmer",
-    "ko": "Korean",
-    "ku": "Kurdish (Kurmanji)",
-    "ky": "Kyrgyz",
-    "lo": "Lao",
-    "la": "Latin",
-    "lv": "Latvian",
-    "lt": "Lithuanian",
-    "lb": "Luxembourgish",
-    "mk": "Macedonian",
-    "mg": "Malagasy",
-    "ms": "Malay",
-    "ml": "Malayalam",
-    "mt": "Maltese",
-    "mi": "Maori",
-    "mr": "Marathi",
-    "mn": "Mongolian",
-    "my": "Myanmar (Burmese)",
-    "ne": "Nepali",
-    "no": "Norwegian",
-    "ps": "Pashto",
-    "fa": "Persian",
-    "pl": "Polish",
-    "pt": "Portuguese",
-    "pa": "Punjabi",
-    "ro": "Romanian",
-    "ru": "Russian",
-    "sm": "Samoan",
-    "gd": "Scots Gaelic",
-    "sr": "Serbian",
-    "st": "Sesotho",
-    "sn": "Shona",
-    "sd": "Sindhi",
-    "si": "Sinhala",
-    "sk": "Slovak",
-    "sl": "Slovenian",
-    "so": "Somali",
-    "es": "Spanish",
-    "su": "Sundanese",
-    "sw": "Swahili",
-    "sv": "Swedish",
-    "tg": "Tajik",
-    "ta": "Tamil",
-    "te": "Telugu",
-    "th": "Thai",
-    "tr": "Turkish",
-    "uk": "Ukrainian",
-    "ur": "Urdu",
-    "uz": "Uzbek",
-    "vi": "Vietnamese",
-    "cy": "Welsh",
-    "xh": "Xhosa",
-    "yi": "Yiddish",
-    "yo": "Yoruba",
-    "zu": "Zulu"
-};
-
-/**
- * Returns the ISO 639-1 code of the desiredLang – if it is supported by
- * Google Translate
- * @param {string} language The name or the code of the desired language
- * @returns {string|boolean} The ISO 639-1 code of the language or null if the
- * language is not supported
- */
-function getISOCode(language: string) {
-    if (!language) return false;
-
-    language = language.toLowerCase();
-    if (language in languages) return language;
-
-    let keys = Object.keys(languages).filter((key) => {
-
-        // if (typeof languages[key] !== "string") return false;
-        // @ts-ignore
-        return languages[key].toLowerCase() === language;
-    });
-
-    return keys[0] || null;
-}
-
-/**
- * Returns true if the desiredLang is supported by Google Translate and false otherwise
- * @param {String} language The ISO 639-1 code or the name of the desired language.
- * @returns {boolean} If the language is supported or not.
- */
-function isSupported(language: string) {
-    return Boolean(getISOCode(language));
-}
 
 function getToken(a: string) {
     var b = 406644;

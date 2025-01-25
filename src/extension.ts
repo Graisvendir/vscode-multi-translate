@@ -1,17 +1,20 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-// import { connect } from 'http2';
 import * as vscode from 'vscode';
-import { GoogleTranslateRequest, TranslateResult } from './google-translate-request';
-import { translate } from './google-translate-v1';
+import { GoogleTranslateRequestV1 } from './google-translate-v1';
+
+interface TranslateResult {
+	lang: string,
+	translatedText: string,
+}
 
 export function activate(context: vscode.ExtensionContext) {
 
     async function translateText(text: string, targetLanguages: string[]): Promise<TranslateResult[]> {
         console.log('translateText ', text, targetLanguages);
 
+        const googleTranslate = new GoogleTranslateRequestV1();
+
         const promises = targetLanguages.map(lang => {
-            return translate(
+            return googleTranslate.translate(
                 text,
                 {
                     from: 'ru',
@@ -28,10 +31,6 @@ export function activate(context: vscode.ExtensionContext) {
                 translatedText: text,
             };
         });
-
-        // const translater = new GoogleTranslateRequest();
-
-        // return translater.multiTranslate(text, targetLanguages);
     }
 
 
