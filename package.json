@@ -4,7 +4,7 @@
   "description": "Перевод строки сразу на несколько языков.",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.96.0"
+    "vscode": "^1.65.0"
   },
   "categories": [
     "Other"
@@ -14,8 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "multi-translate.multiTranslateString",
-        "title": "Translate text to multiple languages"
+        "command": "multitranslate.multiTranslateString",
+        "title": "ебать! Translate text to multiple languages"
       }
     ]
   },
