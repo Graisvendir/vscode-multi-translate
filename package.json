@@ -14,8 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "multitranslate.multiTranslateString",
-        "title": "ебать! Translate text to multiple languages"
+        "command": "multi-translate.multi-translate-selected-text",
+        "title": "Translate selected text to multiple languages"
       }
     ]
   },

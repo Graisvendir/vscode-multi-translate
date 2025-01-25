@@ -34,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
 
-    const disposable = vscode.commands.registerCommand('multitranslate.multiTranslateString', async () => {
+    const disposable = vscode.commands.registerCommand('multi-translate.multi-translate-selected-text', async () => {
         const editor = vscode.window.activeTextEditor;
 
         if (!editor) {
