@@ -3,15 +3,35 @@
 // import { connect } from 'http2';
 import * as vscode from 'vscode';
 import { GoogleTranslateRequest, TranslateResult } from './google-translate-request';
+import { translate } from './google-translate-v1';
 
 export function activate(context: vscode.ExtensionContext) {
 
     async function translateText(text: string, targetLanguages: string[]): Promise<TranslateResult[]> {
         console.log('translateText ', text, targetLanguages);
 
-        const translater = new GoogleTranslateRequest();
+        const promises = targetLanguages.map(lang => {
+            return translate(
+                text,
+                {
+                    from: 'ru',
+                    to: lang,
+                }
+            );
+        });
 
-        return translater.multiTranslate(text, targetLanguages);
+        const resultTexts = await Promise.all(promises);
+
+        return resultTexts.map((text, index) => {
+            return {
+                lang: targetLanguages[index],
+                translatedText: text,
+            };
+        });
+
+        // const translater = new GoogleTranslateRequest();
+
+        // return translater.multiTranslate(text, targetLanguages);
     }
 
 
