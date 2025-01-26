@@ -8,12 +8,14 @@ export class Translator {
 
     protected translateApiCode?: TranslateApiEnum;
     protected languages: string[];
+    protected fromLanguage: string;
 
     constructor(protected settings: WorkspaceConfiguration) {
         this.languages = settings.get<string>('languages-to-translate-into')
             ?.split(',')
             .map(lang => lang.trim()) ?? [];
         this.translateApiCode = settings.get<TranslateApiEnum>('translate-api');
+        this.fromLanguage = settings.get<string>('translate-from') ?? '';
     }
 
     async translateTextToMultipleLanguages(
@@ -25,7 +27,7 @@ export class Translator {
             return translateApi.translate(
                 text,
                 {
-                    fromLangCode: 'ru', // TODO: это в настройку надо утащить
+                    fromLangCode: this.fromLanguage,
                     toLangCode: lang,
                 },
             );
