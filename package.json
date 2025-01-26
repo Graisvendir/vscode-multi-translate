@@ -24,8 +24,15 @@
                     "type": "string",
                     "default": "de, en, es, fr, it, kk, pl, pt, tr, uk",
                     "description": "Список кодов языков, на которые надо перевести текст. Без кавычек, через запятую."
+                },
+                "multi-translate.translate-api": {
+                    "type": "string",
+                    "enum": ["google-v1"],
+                    "default": "google-v1",
+                    "description": "Переводчик. К нему ходим переводить текст по API."
                 }
             }
+
         }
     },
     "scripts": {

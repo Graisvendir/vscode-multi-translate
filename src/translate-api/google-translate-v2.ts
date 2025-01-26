@@ -1,10 +1,6 @@
 import { IncomingMessage } from 'http';
 import * as https from 'https';
-
-export interface TranslateResult {
-	lang: string,
-	translatedText: string,
-}
+import { TranslateResult } from './types';
 
 /**
  * Запрос перевода текста на язык через API версии 2.

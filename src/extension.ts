@@ -1,38 +1,8 @@
 import * as vscode from 'vscode';
-import { GoogleTranslateRequestV1 } from './google-translate-v1';
-
-interface TranslateResult {
-	lang: string,
-	translatedText: string,
-}
+import { translateTextToMultipleLanguages } from './translate-text';
+import { TranslateApiEnum } from './translate-api/types';
 
 export function activate(context: vscode.ExtensionContext) {
-
-    async function translateText(text: string, targetLanguages: string[]): Promise<TranslateResult[]> {
-        console.log('translateText ', text, targetLanguages);
-
-        const googleTranslate = new GoogleTranslateRequestV1();
-
-        const promises = targetLanguages.map(lang => {
-            return googleTranslate.translate(
-                text,
-                {
-                    from: 'ru',
-                    to: lang,
-                }
-            );
-        });
-
-        const resultTexts = await Promise.all(promises);
-
-        return resultTexts.map((text, index) => {
-            return {
-                lang: targetLanguages[index],
-                translatedText: text,
-            };
-        });
-    }
-
 
     const disposable = vscode.commands.registerCommand('multi-translate.multi-translate-selected-text', async () => {
         const editor = vscode.window.activeTextEditor;
@@ -57,7 +27,13 @@ export function activate(context: vscode.ExtensionContext) {
             ?.split(',')
             .map(lang => lang.trim()) ?? [];
 
-        const translations = await translateText(selectedText, languages); // Пример языков
+        const translateApiCode = settings.get<TranslateApiEnum>('translate-api');
+
+        const translations = await translateTextToMultipleLanguages(
+            selectedText,
+            languages,
+            translateApiCode,
+        );
 
         // Форматирование перевода для вывода
         const formattedTranslations = translations
