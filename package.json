@@ -30,6 +30,11 @@
                     "enum": ["google-v1"],
                     "default": "google-v1",
                     "description": "Переводчик. К нему ходим переводить текст по API."
+                },
+                "multi-translate.deepl-api-key": {
+                    "type": "string",
+                    "default": "",
+                    "description": "API ключ сервиса DeepL."
                 }
             }
 

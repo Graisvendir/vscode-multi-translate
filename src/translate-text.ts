@@ -1,55 +1,71 @@
+import { WorkspaceConfiguration } from 'vscode';
 import { GoogleTranslateRequestV1 } from './translate-api/google-translate-v1';
 import { TranslateApi, TranslateApiEnum, TranslateResult } from './translate-api/types';
+import { DeeplApi } from './translate-api/deepl-api';
 
-/**
- * Фабрика.
- * По коду переводчика отдаст объект переводчика.
- *
- * @param translateApiCode
- * @returns
- */
-function translateApiFabric(translateApiCode?: TranslateApiEnum): TranslateApi {
-    if (!translateApiCode) {
-        throw new Error('API перевода не задано!');
+export class Translator {
+
+    protected translateApiCode?: TranslateApiEnum;
+    protected languages: string[];
+
+    constructor(protected settings: WorkspaceConfiguration) {
+        this.languages = settings.get<string>('languages-to-translate-into')
+            ?.split(',')
+            .map(lang => lang.trim()) ?? [];
     }
 
-    const apiMap = new Map([
-        [TranslateApiEnum.googleV1, GoogleTranslateRequestV1],
-    ]);
+    async translateTextToMultipleLanguages(
+        text: string,
+    ): Promise<TranslateResult[]> {
+        const translateApi = this.translateApiFabric();
 
-    const api = apiMap.get(translateApiCode);
+        const promises = this.languages.map(lang => {
+            return translateApi.translate(
+                text,
+                {
+                    fromLangCode: 'ru', // TODO: это в настройку надо утащить
+                    toLangCode: lang,
+                },
+            );
+        });
 
-    if (!api) {
-        throw new Error('Неопределенное API: ' + translateApiCode);
+        const resultTexts = await Promise.all(promises);
+
+        return resultTexts.map((text, index) => {
+            return {
+                lang: this.languages[index],
+                translatedText: text,
+            };
+        });
     }
 
-    return new api();
-}
+    /**
+     * Фабрика.
+     * По коду переводчика отдаст объект переводчика.
+     *
+     * @param translateApiCode
+     * @returns
+     */
+    protected translateApiFabric(): TranslateApi {
+        if (!this.translateApiCode) {
+            throw new Error('API перевода не задано!');
+        }
 
+        const apiMap = new Map<TranslateApiEnum, any>([
+            [TranslateApiEnum.googleV1, GoogleTranslateRequestV1],
+            [TranslateApiEnum.deepl, DeeplApi],
+        ]);
 
-export async function translateTextToMultipleLanguages(
-    text: string,
-    targetLanguages: string[],
-    translateApiCode?: TranslateApiEnum,
-): Promise<TranslateResult[]> {
-    console.log('translateText ', text, targetLanguages);
+        const apiClass = apiMap.get(this.translateApiCode);
 
-    const translateApi = translateApiFabric(translateApiCode);
+        if (!apiClass) {
+            throw new Error('Неопределенное API: ' + this.translateApiCode);
+        }
 
-    const promises = targetLanguages.map(lang => {
-        return translateApi.translate(
-            text,
-            'ru', // TODO: это в настройку надо утащить
-            lang,
-        );
-    });
+        const api = new apiClass();
 
-    const resultTexts = await Promise.all(promises);
+        api.applySettings(this.settings);
 
-    return resultTexts.map((text, index) => {
-        return {
-            lang: targetLanguages[index],
-            translatedText: text,
-        };
-    });
+        return api;
+    }
 }

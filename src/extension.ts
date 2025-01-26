@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
-import { translateTextToMultipleLanguages } from './translate-text';
-import { TranslateApiEnum } from './translate-api/types';
+import { Translator } from './translate-text';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -15,25 +14,16 @@ export function activate(context: vscode.ExtensionContext) {
 
         // Получение выделенного текста
         const selectedText = editor.document.getText(editor.selection);
+
         if (!selectedText) {
             console.error('No selected text');
             vscode.window.showErrorMessage('Select any text!');
             return;
         }
 
-        const settings = vscode.workspace.getConfiguration('multi-translate');
+        const translate = new Translator(vscode.workspace.getConfiguration('multi-translate'));
 
-        const languages = settings.get<string>('languages-to-translate-into')
-            ?.split(',')
-            .map(lang => lang.trim()) ?? [];
-
-        const translateApiCode = settings.get<TranslateApiEnum>('translate-api');
-
-        const translations = await translateTextToMultipleLanguages(
-            selectedText,
-            languages,
-            translateApiCode,
-        );
+        const translations = await translate.translateTextToMultipleLanguages(selectedText);
 
         // Форматирование перевода для вывода
         const formattedTranslations = translations

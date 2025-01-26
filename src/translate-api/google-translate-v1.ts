@@ -1,5 +1,6 @@
+import { WorkspaceConfiguration } from 'vscode';
 import { Fetch } from '../fetch';
-import { TranslateApi } from './types';
+import { TranslateApi, TranslateApiOptions } from './types';
 
 interface Sentence {
     trans: string;
@@ -125,19 +126,20 @@ export class GoogleTranslateRequestV1 implements TranslateApi {
         "zu": "Zulu"
     };
 
+    applySettings(settings: WorkspaceConfiguration): void {}
+
     public async translate(
         text: string,
-        fromLangCode: string,
-        toLangCode: string,
+        options: TranslateApiOptions,
     ): Promise<string> {
-        [ fromLangCode, toLangCode ].forEach((lang) => {
+        [ options.fromLangCode, options.toLangCode ].forEach((lang) => {
             if (!this.isLanguageSupported(lang)) {
                 throw new Error(`Язык '${lang}' не поддерживается.`);
             }
         });
 
-        const from = this.getISOCode(fromLangCode);
-        const to = this.getISOCode(toLangCode);
+        const from = this.getISOCode(options.fromLangCode);
+        const to = this.getISOCode(options.toLangCode);
 
         const requestPath = '/translate_a/single'
             + '?client=at'
