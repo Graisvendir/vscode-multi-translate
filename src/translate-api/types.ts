@@ -28,6 +28,7 @@ export interface TranslateApi {
 export enum TranslateApiEnum {
     googleV1 = 'google-v1',
     deepl = 'deepl',
+    yandex = 'yandex',
 }
 
 export interface TranslateResult {

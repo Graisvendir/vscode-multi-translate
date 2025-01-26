@@ -27,7 +27,7 @@
                 },
                 "multi-translate.translate-api": {
                     "type": "string",
-                    "enum": ["google-v1", "deepl"],
+                    "enum": ["google-v1", "deepl", "yandex"],
                     "default": "google-v1",
                     "description": "Переводчик. К нему ходим переводить текст по API."
                 },
@@ -39,6 +39,16 @@
                 "multi-translate.deepl.is-api-payed": {
                     "type": "boolean",
                     "description": "Куплен DeepL Pro? От этого зависит, в какое API будет стучаться переводчик."
+                },
+                "multi-translate.yandex.iam-key": {
+                    "type": "string",
+                    "default": "",
+                    "description": "IAM ключ сервиса Yandex Translate."
+                },
+                "multi-translate.yandex.folder-id": {
+                    "type": "string",
+                    "default": "",
+                    "description": "folder-id"
                 }
             }
 

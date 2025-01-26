@@ -2,6 +2,7 @@ import { WorkspaceConfiguration } from 'vscode';
 import { GoogleTranslateRequestV1 } from './translate-api/google-translate-v1';
 import { TranslateApi, TranslateApiEnum, TranslateResult } from './translate-api/types';
 import { DeeplApi } from './translate-api/deepl-api';
+import { YandexApi } from './translate-api/yandex-api';
 
 export class Translator {
 
@@ -55,6 +56,7 @@ export class Translator {
         const apiMap = new Map<TranslateApiEnum, any>([
             [TranslateApiEnum.googleV1, GoogleTranslateRequestV1],
             [TranslateApiEnum.deepl, DeeplApi],
+            [TranslateApiEnum.yandex, YandexApi],
         ]);
 
         const apiClass = apiMap.get(this.translateApiCode);
