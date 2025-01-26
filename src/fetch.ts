@@ -33,6 +33,7 @@ export class Fetch {
             );
 
             request.on('error', error => {
+                console.log('error', error); // TODO: console.log remove
                 reject(error);
             });
 

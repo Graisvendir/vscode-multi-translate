@@ -12,6 +12,7 @@ export class Translator {
         this.languages = settings.get<string>('languages-to-translate-into')
             ?.split(',')
             .map(lang => lang.trim()) ?? [];
+        this.translateApiCode = settings.get<TranslateApiEnum>('translate-api');
     }
 
     async translateTextToMultipleLanguages(

@@ -27,14 +27,18 @@
                 },
                 "multi-translate.translate-api": {
                     "type": "string",
-                    "enum": ["google-v1"],
+                    "enum": ["google-v1", "deepl"],
                     "default": "google-v1",
                     "description": "Переводчик. К нему ходим переводить текст по API."
                 },
-                "multi-translate.deepl-api-key": {
+                "multi-translate.deepl.api-key": {
                     "type": "string",
                     "default": "",
                     "description": "API ключ сервиса DeepL."
+                },
+                "multi-translate.deepl.is-api-payed": {
+                    "type": "boolean",
+                    "description": "Куплен DeepL Pro? От этого зависит, в какое API будет стучаться переводчик."
                 }
             }
 

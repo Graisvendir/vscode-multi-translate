@@ -17,9 +17,13 @@ interface ResponseBody {
 export class DeeplApi implements TranslateApi {
 
     protected apiKey = '';
+    protected isApiPayed = false;
+    protected freeHostName = 'api-free.deepl.com';
+    protected payedHostName = 'api.deepl.com';
 
     applySettings(settings: WorkspaceConfiguration): void {
-        this.apiKey = settings.get<string>('deepl-api-key') ?? '';
+        this.apiKey = settings.get<string>('deepl.api-key') ?? '';
+        this.isApiPayed = settings.get<boolean>('deepl.is-api-payed') ?? false;
     }
 
     async translate(
@@ -33,9 +37,9 @@ export class DeeplApi implements TranslateApi {
 
         const responseBody = await (new Fetch()).request(
             {
-                hostname: 'translation.googleapis.com',
+                hostname: this.isApiPayed ? this.payedHostName : this.freeHostName,
                 port: 443,
-                path: '/language/translate/v2',
+                path: '/v2/translate',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json; charset=utf-8',
