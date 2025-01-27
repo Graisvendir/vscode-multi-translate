@@ -2,7 +2,7 @@
     "name": "multi-translate",
     "displayName": "Multi translate",
     "description": "Translate text to multiple languages.",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "repository": "https://github.com/Graisvendir/vscode-multi-translate",
     "publisher": "merikak",
     "engines": {
