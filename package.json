@@ -48,10 +48,10 @@
                     "type": "boolean",
                     "description": "Куплен DeepL Pro? От этого зависит, в какое API будет стучаться переводчик."
                 },
-                "multi-translate.yandex.iam-key": {
+                "multi-translate.yandex.oauth-token": {
                     "type": "string",
                     "default": "",
-                    "description": "IAM ключ сервиса Yandex Translate."
+                    "description": "OAuth токен сервиса Yandex Translate. https://yandex.cloud/ru/docs/iam/concepts/authorization/oauth-token"
                 },
                 "multi-translate.yandex.folder-id": {
                     "type": "string",

@@ -2,11 +2,16 @@ import { TranslateApi, TranslateApiOptions } from './types';
 import { Fetch } from '../fetch';
 import { WorkspaceConfiguration } from 'vscode';
 
-interface ResponseBody {
+interface TranslateResponseBody {
     translations: {
         detectedLanguageCode: string,
         text: string,
     }[]
+}
+
+interface OAuthResponseBody {
+    iamToken: string,
+    expiresAt: string,
 }
 
 /**
@@ -16,12 +21,34 @@ interface ResponseBody {
  */
 export class YandexApi implements TranslateApi {
 
-    protected apiKey = '';
+    protected oauthToken = '';
+    protected iamToken = '';
     protected folderId = '';
 
     applySettings(settings: WorkspaceConfiguration): void {
-        this.apiKey = settings.get<string>('yandex.iam-key') ?? '';
+        this.oauthToken = settings.get<string>('yandex.oauth-token') ?? '';
         this.folderId = settings.get<string>('yandex.folder-id') ?? '';
+    }
+
+    protected async updateIAMToken() {
+        const responseBody = await (new Fetch()).request(
+            {
+                hostname: 'iam.api.cloud.yandex.net',
+                port: 443,
+                path: '/iam/v1/tokens',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            },
+            JSON.stringify({
+                yandexPassportOauthToken: this.oauthToken,
+            }),
+        );
+
+        const jsonBody = <OAuthResponseBody>JSON.parse(responseBody);
+
+        this.iamToken = jsonBody.iamToken;
     }
 
     async translate(
@@ -29,8 +56,17 @@ export class YandexApi implements TranslateApi {
         options: TranslateApiOptions,
     ): Promise<string> {
 
-        if (!this.apiKey) {
-            throw new Error("Ключ API DeepL пустой!");
+        if (!this.oauthToken) {
+            throw new Error('Ключ OAuth пустой!');
+        }
+
+        if (!this.iamToken) {
+            // TODO: токены - в кеш на час складывать
+            await this.updateIAMToken();
+        }
+
+        if (!this.iamToken) {
+            throw new Error('Не получилось получить токен для запроса перевода!');
         }
 
         const responseBody = await (new Fetch()).request(
@@ -40,7 +76,7 @@ export class YandexApi implements TranslateApi {
                 path: '/translate/v2/translate',
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Authorization': `Bearer ${this.iamToken}`,
                     'Content-Type': 'application/json',
                 },
             },
@@ -51,9 +87,7 @@ export class YandexApi implements TranslateApi {
             }),
         );
 
-        const jsonBody = <ResponseBody>JSON.parse(responseBody);
-
-        console.log('!!!!!!! jsonBody', jsonBody); // TODO: console.log remove
+        const jsonBody = <TranslateResponseBody>JSON.parse(responseBody);
 
         return jsonBody.translations.map(translate => translate.text).join('');
     }
