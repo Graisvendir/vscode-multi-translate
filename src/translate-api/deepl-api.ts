@@ -32,7 +32,7 @@ export class DeeplApi implements TranslateApi {
     ): Promise<string> {
 
         if (!this.apiKey) {
-            throw new Error("Ключ API DeepL пустой!");
+            throw new Error("DeepL: Ключ API DeepL пустой!");
         }
 
         const responseBody = await (new Fetch()).request(

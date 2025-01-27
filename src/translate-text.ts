@@ -52,7 +52,7 @@ export class Translator {
      */
     protected async translateApiFabric(): Promise<TranslateApi> {
         if (!this.translateApiCode) {
-            throw new Error('API перевода не задано!');
+            throw new Error('Translate: API перевода не задано!');
         }
 
         const apiMap = new Map<TranslateApiEnum, any>([
@@ -64,7 +64,7 @@ export class Translator {
         const apiClass = apiMap.get(this.translateApiCode);
 
         if (!apiClass) {
-            throw new Error('Неопределенное API: ' + this.translateApiCode);
+            throw new Error('Translate: Неопределенное API: ' + this.translateApiCode);
         }
 
         const api = new apiClass() as TranslateApi;

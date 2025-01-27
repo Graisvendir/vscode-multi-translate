@@ -135,7 +135,7 @@ export class GoogleTranslateRequestV1 implements TranslateApi {
     ): Promise<string> {
         [ options.fromLangCode, options.toLangCode ].forEach((lang) => {
             if (!this.isLanguageSupported(lang)) {
-                throw new Error(`Язык '${lang}' не поддерживается.`);
+                throw new Error(`GoogleTranslate: Язык '${lang}' не поддерживается.`);
             }
         });
 

@@ -23,17 +23,19 @@ export function activate(context: vscode.ExtensionContext) {
 
         const translate = new Translator(vscode.workspace.getConfiguration('multi-translate'));
 
-        const translations = await translate.translateTextToMultipleLanguages(selectedText);
+        try {
+            const translations = await translate.translateTextToMultipleLanguages(selectedText);
+            // Форматирование перевода для вывода
+            const formattedTranslations = translations
+                .map(({ lang, translatedText }) => `${lang.toUpperCase()}:\n${translatedText}`)
+                .join('\n\n');
 
-        // Форматирование перевода для вывода
-        const formattedTranslations = translations
-            .map(({ lang, translatedText }) => `${lang.toUpperCase()}:\n${translatedText}`)
-            .join('\n\n');
-
-        // Создание нового документа и вывод текста
-        const newDoc = await vscode.workspace.openTextDocument({ content: formattedTranslations });
-        await vscode.window.showTextDocument(newDoc);
-
+            // Создание нового документа и вывод текста
+            const newDoc = await vscode.workspace.openTextDocument({ content: formattedTranslations });
+            await vscode.window.showTextDocument(newDoc);
+        } catch (error: any) {
+            vscode.window.showErrorMessage(error.message);
+        }
     });
 
     context.subscriptions.push(disposable);

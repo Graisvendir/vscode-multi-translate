@@ -62,11 +62,11 @@ export class YandexApi implements TranslateApi {
     ): Promise<string> {
 
         if (!this.oauthToken) {
-            throw new Error('Ключ OAuth пустой!');
+            throw new Error('YandexAPI: Ключ OAuth пустой!');
         }
 
         if (!this.iamToken) {
-            throw new Error('Не получилось получить токен для запроса перевода!');
+            throw new Error('YandexAPI: Не получилось получить токен для запроса перевода!');
         }
 
         const responseBody = await (new Fetch()).request(
