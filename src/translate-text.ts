@@ -21,7 +21,7 @@ export class Translator {
     async translateTextToMultipleLanguages(
         text: string,
     ): Promise<TranslateResult[]> {
-        const translateApi = this.translateApiFabric();
+        const translateApi = await this.translateApiFabric();
 
         const promises = this.languages.map(lang => {
             return translateApi.translate(
@@ -50,7 +50,7 @@ export class Translator {
      * @param translateApiCode
      * @returns
      */
-    protected translateApiFabric(): TranslateApi {
+    protected async translateApiFabric(): Promise<TranslateApi> {
         if (!this.translateApiCode) {
             throw new Error('API перевода не задано!');
         }
@@ -67,9 +67,9 @@ export class Translator {
             throw new Error('Неопределенное API: ' + this.translateApiCode);
         }
 
-        const api = new apiClass();
+        const api = new apiClass() as TranslateApi;
 
-        api.applySettings(this.settings);
+        await api.setup(this.settings);
 
         return api;
     }

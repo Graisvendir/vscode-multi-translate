@@ -126,7 +126,8 @@ export class GoogleTranslateRequestV1 implements TranslateApi {
         "zu": "Zulu"
     };
 
-    applySettings(settings: WorkspaceConfiguration): void {}
+    async setup(settings: WorkspaceConfiguration): Promise<void> {
+    }
 
     public async translate(
         text: string,

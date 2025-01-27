@@ -10,7 +10,11 @@ export interface TranslateApiOptions {
  */
 export interface TranslateApi {
 
-    applySettings(settings: WorkspaceConfiguration): void;
+    /**
+     * Подготовка переводчика к отправке запросов.
+     * Например, тут можно обновить OAuth токены.
+     */
+    setup(settings: WorkspaceConfiguration): Promise<void>;
 
     /**
      * Запрос на перевод текста

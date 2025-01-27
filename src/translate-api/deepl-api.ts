@@ -21,7 +21,7 @@ export class DeeplApi implements TranslateApi {
     protected freeHostName = 'api-free.deepl.com';
     protected payedHostName = 'api.deepl.com';
 
-    applySettings(settings: WorkspaceConfiguration): void {
+    async setup(settings: WorkspaceConfiguration): Promise<void> {
         this.apiKey = settings.get<string>('deepl.api-key') ?? '';
         this.isApiPayed = settings.get<boolean>('deepl.is-api-payed') ?? false;
     }

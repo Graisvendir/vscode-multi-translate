@@ -25,9 +25,14 @@ export class YandexApi implements TranslateApi {
     protected iamToken = '';
     protected folderId = '';
 
-    applySettings(settings: WorkspaceConfiguration): void {
+    async setup(settings: WorkspaceConfiguration): Promise<void> {
         this.oauthToken = settings.get<string>('yandex.oauth-token') ?? '';
         this.folderId = settings.get<string>('yandex.folder-id') ?? '';
+
+        // TODO: токены - в кеш на час складывать
+        if (!this.iamToken) {
+            await this.updateIAMToken();
+        }
     }
 
     protected async updateIAMToken() {
@@ -58,11 +63,6 @@ export class YandexApi implements TranslateApi {
 
         if (!this.oauthToken) {
             throw new Error('Ключ OAuth пустой!');
-        }
-
-        if (!this.iamToken) {
-            // TODO: токены - в кеш на час складывать
-            await this.updateIAMToken();
         }
 
         if (!this.iamToken) {
